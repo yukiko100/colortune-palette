@@ -854,37 +854,52 @@ h2 {
     gap: 0.5rem;
 }
 
-/* 英語テキストのみを細くする */
-body {
-  font-family: 'Outfit', 'Noto Sans JP', sans-serif;
-}
+/* --- Language Specific Font overrides --- */
 
-/* 英語部分（アルファベット）を優先的にOutfit Lightに */
-body {
-  font-weight: 400;
-}
-
-/* 英語用クラスがある場合は優先的に適用 */
-.en,
-span:lang(en),
-p:lang(en),
-h1:lang(en),
-h2:lang(en),
-h3:lang(en) {
+/* 英語テキスト (Outfit Light 300) */
+.logo,
+.subtitle-en,
+.theme-en,
+.hue-name,
+.mockup-eyebrow,
+.mockup-btn,
+.font-name-en {
   font-family: 'Outfit', sans-serif;
   font-weight: 300;
 }
 
-/* 英語っぽいUI要素（ボタン・英語コピー）も少し軽く */
-button,
-.card button,
-.english,
-.subtitle-en {
-  font-weight: 300;
-}
-
-/* 日本語テキストの復旧 */
-h1, h2, h3, h4, h5, h6, p, span, div, li, td, th {
+/* 日本語テキスト (Noto Sans JP Regular 400) */
+.font-name-ja,
+.theme-name,
+.palette-list-header h3,
+.palette-list-header p,
+.palette-card-header h3,
+.palette-card-header p,
+.preview-title,
+.result-meta,
+.result-desc {
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 400;
+}
+
+body {
+  letter-spacing: 0.01em;
+}
+
+/* h2 の太さを強制上書き */
+h2 {
+  font-weight: 400 !important;
+}
+
+
+/* Subtle dotted background */
+body {
+  background-color: var(--bg-color);
+background-image:
+  radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+  radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%),
+  radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%),
+  radial-gradient(at 100% 0%, hsla(339,49%,30%,0.03) 0, transparent 50%);
+  background-size: 15px 15px, auto, auto, auto;
+  background-attachment: fixed;
 }
