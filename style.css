@@ -65,6 +65,16 @@ body {
     background-clip: text;
 }
 
+.color-wheel-link {
+    display: inline-block;
+    margin-bottom: -0.1rem;
+    transition: transform 0.3s ease;
+}
+
+.color-wheel-link:hover {
+    transform: scale(1.05) rotate(5deg);
+}
+
 .subtitle {
     color: var(--text-muted);
     font-size: 1rem;
@@ -74,7 +84,7 @@ body {
 .subtitle-en {
     color: var(--text-muted);
     font-size: 0.85rem;
-    opacity: 0.7;
+    opacity: 0.5;
     margin-top: 0.4rem;
     letter-spacing: 0.03em;
 }
@@ -155,10 +165,10 @@ body {
 }
 
 .step-badge {
-    background: #e2e8f0;
-    color: #475569;
-    font-size: 1.1rem;
-    font-weight: 600;
+    background: #dbe3ee;
+    color: #334155;
+    font-size: 1.2rem;
+    font-weight: 300;
     padding: 0.35rem 1rem;
     border-radius: 999px;
     margin-bottom: 0.75rem;
@@ -284,14 +294,14 @@ h2 {
 .palettes-container {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.65rem;
     margin-bottom: 3rem;
 }
 
 .palette-card {
     background: white;
     border-radius: var(--radius-lg);
-    padding: 1rem 1.5rem;
+    padding: 0.85rem 1.5rem;
     box-shadow: 0 10px 40px rgba(0,0,0,0.05);
 }
 
@@ -328,7 +338,7 @@ h2 {
 
 .palette-colors {
     display: flex;
-    height: 75px;
+    height: 50px;
     border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -373,8 +383,8 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-weight: 600;
+    font-size: 0.8rem;
     letter-spacing: 0.1em;
     opacity: 0;
     transition: opacity 0.2s ease, transform 0.2s ease;
@@ -651,7 +661,7 @@ h2 {
 }
 
 #mockup-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     margin-bottom: 0;
     line-height: 1.4;
     font-weight: 700;

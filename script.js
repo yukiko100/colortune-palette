@@ -173,13 +173,56 @@ const getLuminance = (hex) => {
     return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
 };
 
-const getBestTextColor = (bgHex) => {
+const hexToHslObj = (hex) => {
+    let r = parseInt(hex.substring(1, 3), 16) / 255;
+    let g = parseInt(hex.substring(3, 5), 16) / 255;
+    let b = parseInt(hex.substring(5, 7), 16) / 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) {
+        h = s = 0;
+    } else {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+    }
+    return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+};
+
+const getBestTextColor = (bgHex, themeId = null) => {
     const bgLum = getLuminance(bgHex);
     const whiteLum = 1.0;
     const darkLum = getLuminance('#1e293b');
     
     const contrastWhite = (whiteLum + 0.05) / (bgLum + 0.05);
     const contrastDark = (bgLum + 0.05) / (darkLum + 0.05);
+    
+    // 背景色の彩度・明度を調べる
+    const hsl = hexToHslObj(bgHex);
+    // 視覚的に「強い色（ビビッド）」の判定：彩度が高く、明度が中程度〜やや低め
+    const isVivid = hsl.s >= 50 && hsl.l >= 25 && hsl.l <= 65;
+    
+    // 白文字を優先して採用するためのWCAG倍率ボーナス
+    let preferWhiteBonus = 1.0;
+    
+    // ビビッドカラーなら白を少し優先
+    if (isVivid) {
+        preferWhiteBonus = 1.2;
+    }
+    
+    // 特に「元気」テーマでの白文字強化
+    if (themeId === 'energetic') {
+        preferWhiteBonus = isVivid ? 1.6 : 1.3;
+    }
+    
+    if (contrastWhite * preferWhiteBonus >= contrastDark) {
+        return '#ffffff';
+    }
     
     return contrastWhite >= contrastDark ? '#ffffff' : '#1e293b';
 };
@@ -232,7 +275,7 @@ const getAccentHueByMode = (hueId, mode) => {
 
 const generateUnifiedPalette = (hueObj, themeObj) => {
     const rules = themeObj.rules;
-    const baseH = getBaseHue(hueObj);
+    let baseH = getBaseHue(hueObj);
     
     let baseL = random(rules.l.min, rules.l.max);
     let baseS = random(rules.s.min, rules.s.max);
@@ -243,8 +286,10 @@ const generateUnifiedPalette = (hueObj, themeObj) => {
             baseS = clamp(baseS + 15, 65, 95);
             baseL = clamp(baseL + 10, 80, 95);
         } else if (themeObj.id === 'energetic') {
-            baseS = clamp(baseS + 15, 85, 100);
-            baseL = clamp(baseL + 10, 65, 85);
+            // 元気テーマのときは#F57C00(H30,S100,L48)に近い明快なオレンジをベースにする
+            baseH = random(28, 33);
+            baseS = random(95, 100);
+            baseL = random(46, 52);
         } else {
             baseS = clamp(baseS + 10, 45, 90);
         }
@@ -258,8 +303,10 @@ const generateUnifiedPalette = (hueObj, themeObj) => {
             baseS = clamp(baseS + 20, 70, 95);
             baseL = clamp(baseL, 65, 75);
         } else if (themeObj.id === 'energetic') {
-            baseS = clamp(baseS + 20, 85, 100);
-            baseL = clamp(baseL, 50, 65);
+            // 元気テーマのときは#FBC02D(H48,S96,L58)に近い明快なイエローをベースにする
+            baseH = random(45, 51);
+            baseS = random(90, 100);
+            baseL = random(55, 62);
         } else if (themeObj.id === 'luxury') {
             // 高級感は明度を下げすぎると泥色になるため、真鍮・ダークゴールドを狙う
             baseS = clamp(baseS + 10, 40, 70);
@@ -277,8 +324,10 @@ const generateUnifiedPalette = (hueObj, themeObj) => {
             baseS = clamp(baseS + 15, 60, 85);
             baseL = clamp(baseL + 5, 75, 85);
         } else if (themeObj.id === 'energetic') {
-            baseS = clamp(baseS + 15, 75, 95);
-            baseL = clamp(baseL + 5, 65, 80);
+            // 元気テーマのときは#9CCC65(H88,S50,L60)に近いイエローグリーンを強く残す
+            baseH = random(86, 90);
+            baseS = random(50, 60);
+            baseL = random(58, 64);
         } else if (themeObj.id === 'luxury') {
             baseS = clamp(baseS + 5, 40, 65);
             if (baseL < 40) baseL = 40; // 濁りを避けつつ上質な抹茶色
@@ -286,6 +335,26 @@ const generateUnifiedPalette = (hueObj, themeObj) => {
             baseS = clamp(baseS + 10, 50, 85);
         }
         if (themeObj.id !== 'luxury' && baseL < 55) baseL = 55;
+    }
+
+    // 5G (緑) 専用の特例補正
+    if (hueObj.id === '5g') {
+        if (themeObj.id === 'energetic') {
+            // 元気テーマのときは#43A047(H123,S41,L45)に近い鮮やかな緑を残す
+            baseH = random(121, 126);
+            baseS = random(40, 50);
+            baseL = random(42, 48);
+        }
+    }
+
+    // 5BG (青緑) 専用の特例補正
+    if (hueObj.id === '5bg') {
+        if (themeObj.id === 'energetic') {
+            // 元気テーマのときは#00897B(H174,S100,L27)の明快なターコイズを強く残す
+            baseH = random(172, 176);
+            baseS = random(95, 100);
+            baseL = random(25, 32);
+        }
     }
 
     // 5B (青) 専用の特例補正（重すぎるネイビー化の排除）
@@ -323,7 +392,9 @@ const generateUnifiedPalette = (hueObj, themeObj) => {
     }
     
     // ネオンカラーの抑制処理 (統一型および全テーマのベースに対するネオン防止)
-    if (calculateNeonScore(baseH, baseS, baseL) >= 2) {
+    // ただし、特定色×元気 は鮮やかさを保つためネオン防止をスキップ
+    const skipNeonGuard = ['5y', '5yr', '5gy', '5g', '5bg'].includes(hueObj.id) && themeObj.id === 'energetic';
+    if (!skipNeonGuard && calculateNeonScore(baseH, baseS, baseL) >= 2) {
         baseS = clamp(baseS - 15, 15, 70);
     }
     
@@ -575,7 +646,8 @@ const updatePreview = () => {
     
     if (mockupHero) {
         mockupHero.style.backgroundColor = main.hex;
-        const heroTextColor = getBestTextColor(main.hex);
+        const currentThemeId = state.selectedTheme ? state.selectedTheme.id : null;
+        const heroTextColor = getBestTextColor(main.hex, currentThemeId);
         mockupTitle.style.color = heroTextColor;
         if (mockupEyebrow) {
             mockupEyebrow.style.color = heroTextColor;
