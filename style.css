@@ -797,25 +797,23 @@ h2 {
         color: rgba(0,0,0,0.6);
     }
     
+    #step-result {
+        padding-bottom: 120px;
+    }
+    
     .result-actions {
         flex-direction: column;
     }
-
-      /* STEP3全体の下に十分な余白を作る */
-    #step-result {
-    padding-bottom: 120px;
-    }
     
     #btn-regenerate {
-        position: fixed !important;
-        left: 16px !important;
-        right: 16px !important;
-        bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-        width: auto !important;
-        max-width: none !important;
-        transform: none !important;
-        z-index: 9999 !important;
-        margin-top: 0 !important;
+        position: fixed;
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-width: 400px;
+        margin: 0 auto !important; /* 中央寄せの維持用（max-widthが効いた場合用） */
+        z-index: 9999;
         box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
     }
     
